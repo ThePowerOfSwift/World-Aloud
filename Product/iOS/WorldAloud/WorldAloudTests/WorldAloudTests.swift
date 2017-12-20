@@ -1,15 +1,15 @@
 //
-//  AloudWorldTests.swift
-//  AloudWorldTests
+//  WorldAloudTests.swift
+//  WorldAloudTests
 //
-//  Created by Andre Guerra on 14/12/17.
+//  Created by Andre Guerra on 17/12/17.
 //  Copyright © 2017 Andre Guerra. All rights reserved.
 //
 
 import XCTest
-@testable import AloudWorld
+@testable import WorldAloud
 
-class AloudWorldTests: XCTestCase {
+class WorldAloudTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
