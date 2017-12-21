@@ -18,12 +18,24 @@ class ReadTextMachine: NSObject {
     private var camera = CameraCapture()
     private weak var viewControllerDelegate: ViewControllerDelegate? // variable must be weak
     private var cameraPreview: CameraPreview!
+    private var speech = SpeechSynthesizer() // needs to be unique in order to control multiple requests (Singleton pattern).
+    private var textFinder: TextFinder! // need asynchronous access to it, so I will save it in this scope.
     
     // Initializer / Deinitializer
     override init() {
         super.init()
-        let notificationPhotoCaptured = Notification.Name(rawValue: CameraCapture.NOTIFY_PHOTO_CAPTURED)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.processingDoneTakingPhoto), name: notificationPhotoCaptured, object: nil)
+        
+        // Setup event observers
+        let notification1 = Notification.Name(rawValue: CameraCapture.NOTIFY_PHOTO_CAPTURED)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.processingDoneTakingPhoto),
+                                               name: notification1,
+                                               object: nil)
+        let notification2 = Notification.Name(rawValue: TextFinder.NOTIFY_TEXT_DETECTION_COMPLETE)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.processingDoneFindingText),
+                                               name: notification2,
+                                               object: nil)
     }
     deinit {
         NotificationCenter.default.removeObserver(self) // cleanup observer once instance no longer exists
@@ -40,47 +52,90 @@ class ReadTextMachine: NSObject {
     
     // Operations
     /// Activates camera view 
-    public func liveView(){
+    public func liveView() {
         self.currentState = .liveView
+        // add a cleanup routine either here or on halt. Decide later.
+        
         self.camera.startSession()
         
         // configure preview and add it to app view
         let viewLayer = self.viewControllerDelegate?.getViewLayer()
         self.cameraPreview = CameraPreview(session: self.camera.getSession(), container: viewLayer!)
         self.cameraPreview?.addPreview()
+        
+        // inform user that app is in live view mode
+        speech.utter("Camera view. Tap to start.")
     }
     
-    public func processing(){
+    public func processing() {
         self.currentState = .processing
         self.camera.snapPhoto()
     }
     
     // Executes after the observer captures the notification comming from CameraCapture
-    @IBAction private func processingDoneTakingPhoto(){
+    @IBAction private func processingDoneTakingPhoto() {
+        speech.utter("Processing.")
         self.cameraPreview.removePreview()
         self.camera.stopSession()
         
         if let image = self.camera.getImage() {
             viewControllerDelegate?.displayImage(image, xPosition: 0, yPosition: 0) // show photo on view.
-            self.processingTextDetection()
+            
+            // trigger vision request
+            textFinder = TextFinder(inputImage: self.camera.getImage()!)
+            textFinder.findText()
+            // notification triggers processingDoneFindingText when done.
         }
         else { // something went wrong on image capture. Return to live view.
             self.liveView()
         }
     }
     
-    private func processingTextDetection(){
-        // Remember you can force unwrap self.camera.image as it's been checked before this call
-        // Trigger Vision Request
-        print("Vision request would be triggered.")
+    @IBAction private func processingDoneFindingText() {
+        DispatchQueue.main.async {
+            let textBoxes = self.textFinder.getTextBoxes()
+            
+            if textBoxes.count <= 0 {
+                self.speech.utter("No text found.")
+                self.liveView()
+            }
+            else {
+                // Draw red boxes on top of user view.
+                let image = self.textFinder.getInputImage()
+                // previous process ran on the background, so we need to change back to the main queue in order to update the UI.
+                
+                let view = self.viewControllerDelegate?.getView()
+                let viewFrameWidth = view!.frame.width
+                let conversionRatio = viewFrameWidth / image.size.width
+                let scaledHeight = conversionRatio * image.size.height
+                for box in textBoxes {
+                    let x = viewFrameWidth * box.origin.x // + imageView.frame.origin.x
+                    let width = viewFrameWidth * box.width
+                    let height = scaledHeight * box.height
+                    let y = scaledHeight * (1-box.origin.y) - height // + imageView.frame.origin.y
+                    let textRectangle = CGRect(x: x, y: y, width: width, height: height)
+                    
+                    // Draw rectangles on UI for areas of detected text
+                    let redBox = UIView()
+                    redBox.backgroundColor = .red
+                    redBox.alpha = 0.25
+                    redBox.frame = textRectangle
+                    view!.addSubview(redBox)
+                }
+                
+            }
+        }
+        
+        
+        // Feed image and boxes to a process that returns a single image
     }
     
-    public func reading(){
+    private func reading() {
         self.currentState = .reading
     }
     
     /// Stops all processing or reading activity and goes back to live view
-    public func halt(){
+    public func halt() {
         self.currentState = .halt
     }
 }

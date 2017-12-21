@@ -11,23 +11,23 @@ import AVFoundation
 
 /// Sets up the camera and captures images from it.
 class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
-    // Attributes
+    // ATTRIBUTES
     private var authorization = AVCaptureDevice.authorizationStatus(for: AVMediaType.video) // authorization status of the camera device
     private var session = AVCaptureSession()
     private var output = AVCapturePhotoOutput()
     private var image: UIImage?
     private var deviceOrientationOnCapture: UIDeviceOrientation!
     
-    static let NOTIFY_PHOTO_CAPTURED = "guerra.andre.worldAloud.photo.captured"
+    static let NOTIFY_PHOTO_CAPTURED = "agu3rra.worldAloud.photo.captured"
     
-    // Initialization
-    override init(){
+    // INITIALIZER
+    override init() {
         super.init()
         self.authorizationCheck()
         self.session = configureCaptureSession()
     }
     
-    // Getters and Setters
+    // GETTERS AND SETTERS
     public func getSession() -> AVCaptureSession {
         return self.session
     }
@@ -35,9 +35,9 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
         return self.image
     }
     
-    // Methods
+    // METHODS
     /// Checks for current access authorization on the device's camera and asks for it if it is not yet determined.
-    private func authorizationCheck(){
+    private func authorizationCheck() {
         if self.authorization == .notDetermined {
             // Utter "Camera access required. Please grant it."
             AVCaptureDevice.requestAccess(for: .video, completionHandler: {
@@ -108,6 +108,7 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
         self.output.capturePhoto(with: photoSettings, delegate: self) // Trigger image capture. It needs a runing session to work.
     }
     
+    // DELEGATE METHODS
     internal func photoOutput(_ output: AVCapturePhotoOutput, willBeginCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
         self.deviceOrientationOnCapture = UIDevice.current.orientation
     }
@@ -115,7 +116,7 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
     internal func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         var fail = true
         if let imageData = photo.fileDataRepresentation() { // successfully generated image.
-            if let image = UIImage(data: imageData){ // successfully generated an UIImage from flat data file.
+            if let image = UIImage(data: imageData) { // successfully generated an UIImage from flat data file.
                 if let orientation = self.deviceOrientationOnCapture{
                     if let image = image.cgImage { // convert to CGImage prior to re-converting back to UIImage in order to pass orientation
                         self.image = UIImage(cgImage: image, scale: 1.0, orientation: orientation.getUIImageOrientationFromDevice())
@@ -128,9 +129,7 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
             self.image = nil
         }
         
-        // Notify that the instance is done processing photo.
-        let name = Notification.Name(rawValue: CameraCapture.NOTIFY_PHOTO_CAPTURED)
-        NotificationCenter.default.post(name: name, object: self)
+        broadcastNotification(name: CameraCapture.NOTIFY_PHOTO_CAPTURED)
     }
     
     

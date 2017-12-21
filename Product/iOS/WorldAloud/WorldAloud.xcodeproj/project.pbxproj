@@ -20,6 +20,7 @@
 		2DA371921FE8471C00FB8DB5 /* CameraCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA371911FE8471C00FB8DB5 /* CameraCapture.swift */; };
 		2DA371941FE84FB000FB8DB5 /* SpeechSynthesizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA371931FE84FB000FB8DB5 /* SpeechSynthesizer.swift */; };
 		2DA371961FE9AC8200FB8DB5 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA371951FE9AC8200FB8DB5 /* CameraPreview.swift */; };
+		2DCAAEFB1FEBBD800054A2C0 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAAEFA1FEBBD800054A2C0 /* Utilities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,7 @@
 		2DA371911FE8471C00FB8DB5 /* CameraCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCapture.swift; sourceTree = "<group>"; };
 		2DA371931FE84FB000FB8DB5 /* SpeechSynthesizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesizer.swift; sourceTree = "<group>"; };
 		2DA371951FE9AC8200FB8DB5 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		2DCAAEFA1FEBBD800054A2C0 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				2DA3718E1FE82EFB00FB8DB5 /* Extensions.swift */,
+				2DCAAEFA1FEBBD800054A2C0 /* Utilities.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 				2DA371961FE9AC8200FB8DB5 /* CameraPreview.swift in Sources */,
 				2DA371681FE6DF4900FB8DB5 /* AppDelegate.swift in Sources */,
 				2DA3718B1FE6E01F00FB8DB5 /* ReadTextMachine.swift in Sources */,
+				2DCAAEFB1FEBBD800054A2C0 /* Utilities.swift in Sources */,
 				2DA3718F1FE82EFB00FB8DB5 /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -9,6 +9,7 @@
 import UIKit
 
 protocol ViewControllerDelegate:class {
+    func getView() -> UIView
     func getViewLayer() -> CALayer
     func displayImage(_ image: UIImage, xPosition: CGFloat, yPosition: CGFloat)
 }
@@ -60,6 +61,10 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, ViewControl
     
     // ViewControllerDelegate protocol functions
     /// Returns this ViewController's view object (as reference) to any class or object that conforms to ViewControllerDelegate
+    public func getView() -> UIView {
+        return self.view
+    }
+    
     public func getViewLayer() -> CALayer {
         return self.view.layer
     }

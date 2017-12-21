@@ -25,11 +25,11 @@ class CameraPreview: NSObject {
         super.init()
     }
     
-    public func addPreview(){
+    public func addPreview() {
         self.container.insertSublayer(self.previewLayer, at: 0)
     }
     
-    public func removePreview(){
+    public func removePreview() {
         self.previewLayer.removeFromSuperlayer()
     }
 }
