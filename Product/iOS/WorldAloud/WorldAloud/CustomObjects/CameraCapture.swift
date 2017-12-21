@@ -9,14 +9,16 @@
 import UIKit
 import AVFoundation
 
-/// This class is responsible for setting up the camera and capturing images from it.
+/// Sets up the camera and captures images from it.
 class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
     // Attributes
     private var authorization = AVCaptureDevice.authorizationStatus(for: AVMediaType.video) // authorization status of the camera device
     private var session = AVCaptureSession()
     private var output = AVCapturePhotoOutput()
-    private var image: UIImage!
+    private var image: UIImage?
     private var deviceOrientationOnCapture: UIDeviceOrientation!
+    
+    static let NOTIFY_PHOTO_CAPTURED = "guerra.andre.worldAloud.photo.captured"
     
     // Initialization
     override init(){
@@ -29,7 +31,7 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
     public func getSession() -> AVCaptureSession {
         return self.session
     }
-    public func getImage() -> UIImage {
+    public func getImage() -> UIImage? {
         return self.image
     }
     
@@ -82,9 +84,7 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
     }
     
     public func startSession() {
-        print("Live capture start call.")
         if self.session.isRunning {
-            print("already running")
             return
         }
         self.session.startRunning()
@@ -92,7 +92,6 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
     }
     
     public func stopSession() {
-        print("Live capture stop call.")
         if !self.session.isRunning {
             print("already stopped")
             return
@@ -128,7 +127,10 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
         if (fail) { // I needed this because guard let on the above statements required too much else statements with the same things.
             self.image = nil
         }
-        // generate broadcast saying I'm done. TextReader needs to have an observer for capturing it.
+        
+        // Notify that the instance is done processing photo.
+        let name = Notification.Name(rawValue: CameraCapture.NOTIFY_PHOTO_CAPTURED)
+        NotificationCenter.default.post(name: name, object: self)
     }
     
     

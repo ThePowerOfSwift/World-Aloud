@@ -38,8 +38,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Calls the initial state of the Operating Mode state machine
         let viewController = self.window?.rootViewController as! ViewController // get reference to root view controller
         let operatingMode = viewController.operatingMode
-        if (operatingMode is TextReader) {
-            let operatingMode = operatingMode as! TextReader
+        if (operatingMode is ReadTextMachine) {
+            let operatingMode = operatingMode as! ReadTextMachine
             operatingMode.liveView()
         }
     }

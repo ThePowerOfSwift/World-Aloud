@@ -10,22 +10,18 @@ import UIKit
 
 protocol ViewControllerDelegate:class {
     func getViewLayer() -> CALayer
+    func displayImage(_ image: UIImage, xPosition: CGFloat, yPosition: CGFloat)
 }
 
 class ViewController: UIViewController, UIGestureRecognizerDelegate, ViewControllerDelegate {
     var operatingMode: Any? // This can become either a TextReader or a CashRecognizer or an ObjectClassifier
     
-    /// Returns this ViewController's view object (as reference) to any class or object that conforms to ViewControllerDelegate
-    public func getViewLayer() -> CALayer {
-        return self.view.layer
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .black // I think this looks better.
         configureGestures()
-        operatingMode = TextReader() // initilize in this mode. Following versions will allow change in op mode thru swipe.
-        let mode = operatingMode as! TextReader
+        operatingMode = ReadTextMachine() // initilize in this mode. Following versions will allow change in op mode thru swipe.
+        let mode = operatingMode as! ReadTextMachine
         mode.setViewControllerDelegate(viewController: self)
     }
     
@@ -44,14 +40,14 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, ViewControl
             guard let operatingMode = self.operatingMode else {fatalError("Unable to retrieve operating mode.")}
             
             // Gesture responses to TextReader mode.
-            if operatingMode is TextReader{
-                let operatingMode = operatingMode as! TextReader
+            if operatingMode is ReadTextMachine{
+                let operatingMode = operatingMode as! ReadTextMachine
                 let currentState = operatingMode.getCurrentState()
                 switch currentState {
-                case TextReaderState.liveView:
+                case ReadTextState.liveView:
                     operatingMode.processing()
                     break
-                case TextReaderState.processing, .reading:
+                case ReadTextState.processing, .reading:
                     operatingMode.halt()
                     break
                 default: // nothing to do.
@@ -62,6 +58,20 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, ViewControl
     }
     
     
+    // ViewControllerDelegate protocol functions
+    /// Returns this ViewController's view object (as reference) to any class or object that conforms to ViewControllerDelegate
+    public func getViewLayer() -> CALayer {
+        return self.view.layer
+    }
+    
+    public func displayImage(_ image: UIImage, xPosition: CGFloat, yPosition: CGFloat){
+        let conversionRatio = self.view.frame.width / image.size.width
+        let scaledHeigth = conversionRatio * image.size.height
+        let imageView = UIImageView(frame: CGRect(x: xPosition, y: yPosition, width: self.view.frame.width, height: scaledHeigth))
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = image
+        self.view.addSubview(imageView)
+    }
     
 }
 

@@ -9,28 +9,27 @@
 import UIKit
 import AVFoundation
 
-/// This class is responsible for providing a preview layer to whatever view calls it.
+/// Provides a preview layer to whatever view calls it.
 class CameraPreview: NSObject {
-    private var session: AVCaptureSession
+    private var session: AVCaptureSession // session on top of which the preview will run
+    private var container: CALayer // the destination container that will hold the preview
+    private var previewLayer: AVCaptureVideoPreviewLayer
     
-    init(session: AVCaptureSession) {
+    init(session: AVCaptureSession, container: CALayer) {
         self.session = session
+        self.container = container
+        self.previewLayer = AVCaptureVideoPreviewLayer(session: self.session)
+        self.previewLayer.videoGravity = AVLayerVideoGravity.resizeAspect // // Preserve aspect ratio; fit within layer bounds;
+        self.previewLayer.frame = container.bounds
+        self.previewLayer.contentsGravity = kCAGravityResizeAspectFill
         super.init()
     }
     
-    public func configurePreview(container: CALayer) -> AVCaptureVideoPreviewLayer{
-        let previewLayer = AVCaptureVideoPreviewLayer(session: self.session)
-        previewLayer.videoGravity = AVLayerVideoGravity.resizeAspect // // Preserve aspect ratio; fit within layer bounds;
-        previewLayer.frame = container.bounds
-        previewLayer.contentsGravity = kCAGravityResizeAspectFill
-        return previewLayer
+    public func addPreview(){
+        self.container.insertSublayer(self.previewLayer, at: 0)
     }
     
-    public func addPreview(container: CALayer, previewLayer: AVCaptureVideoPreviewLayer){
-        container.insertSublayer(previewLayer, at: 0)
-    }
-    
-    public func removePreview(previewLayer: AVCaptureVideoPreviewLayer){
-        previewLayer.removeFromSuperlayer()
+    public func removePreview(){
+        self.previewLayer.removeFromSuperlayer()
     }
 }
