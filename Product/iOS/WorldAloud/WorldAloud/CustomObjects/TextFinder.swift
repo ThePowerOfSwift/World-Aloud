@@ -67,4 +67,6 @@ class TextFinder: NSObject {
         })
         broadcastNotification(name: TextFinder.NOTIFY_TEXT_DETECTION_COMPLETE)
     }
+    
+    
 }

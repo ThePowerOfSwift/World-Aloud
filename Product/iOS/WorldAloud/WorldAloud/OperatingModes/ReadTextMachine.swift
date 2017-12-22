@@ -126,7 +126,6 @@ class ReadTextMachine: NSObject {
             }
         }
         
-        
         // Feed image and boxes to a process that returns a single image
     }
     

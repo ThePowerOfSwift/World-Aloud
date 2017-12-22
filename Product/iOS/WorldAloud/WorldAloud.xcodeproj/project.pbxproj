@@ -20,6 +20,7 @@
 		2DA371921FE8471C00FB8DB5 /* CameraCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA371911FE8471C00FB8DB5 /* CameraCapture.swift */; };
 		2DA371941FE84FB000FB8DB5 /* SpeechSynthesizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA371931FE84FB000FB8DB5 /* SpeechSynthesizer.swift */; };
 		2DA371961FE9AC8200FB8DB5 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA371951FE9AC8200FB8DB5 /* CameraPreview.swift */; };
+		2DC25FB01FEC88ED00107C3D /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC25FAF1FEC88ED00107C3D /* ImageProcessor.swift */; };
 		2DCAAEFB1FEBBD800054A2C0 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAAEFA1FEBBD800054A2C0 /* Utilities.swift */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +52,7 @@
 		2DA371911FE8471C00FB8DB5 /* CameraCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCapture.swift; sourceTree = "<group>"; };
 		2DA371931FE84FB000FB8DB5 /* SpeechSynthesizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesizer.swift; sourceTree = "<group>"; };
 		2DA371951FE9AC8200FB8DB5 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		2DC25FAF1FEC88ED00107C3D /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
 		2DCAAEFA1FEBBD800054A2C0 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -140,6 +142,7 @@
 				2DA371951FE9AC8200FB8DB5 /* CameraPreview.swift */,
 				2D7F61011FEB446400978118 /* TextFinder.swift */,
 				2D7F61031FEB466100978118 /* TextReader.swift */,
+				2DC25FAF1FEC88ED00107C3D /* ImageProcessor.swift */,
 			);
 			path = CustomObjects;
 			sourceTree = "<group>";
@@ -248,6 +251,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2D7F61041FEB466100978118 /* TextReader.swift in Sources */,
+				2DC25FB01FEC88ED00107C3D /* ImageProcessor.swift in Sources */,
 				2D7F61021FEB446400978118 /* TextFinder.swift in Sources */,
 				2DA3716A1FE6DF4900FB8DB5 /* ViewController.swift in Sources */,
 				2DA371921FE8471C00FB8DB5 /* CameraCapture.swift in Sources */,
