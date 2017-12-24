@@ -19,6 +19,7 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
     private var deviceOrientationOnCapture: UIDeviceOrientation!
     
     static let NOTIFY_PHOTO_CAPTURED = "agu3rra.worldAloud.photo.captured"
+    static let NOTIFY_SESSION_STOPPED = "agu3rra.worldAloud.session.stopped"
     
     // INITIALIZER
     override init() {
@@ -97,7 +98,9 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
             return
         }
         self.session.stopRunning()
+
         print("Live capture stopped.")
+        broadcastNotification(name: CameraCapture.NOTIFY_SESSION_STOPPED)
     }
     
     public func snapPhoto() {

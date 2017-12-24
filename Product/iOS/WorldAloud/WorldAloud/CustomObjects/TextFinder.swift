@@ -44,14 +44,10 @@ class TextFinder: NSObject {
         // Vision Framework request setup
         let textDetectionRequest = VNDetectTextRectanglesRequest(completionHandler: self.findTextBoxes)
         let textDetectionHandler = VNImageRequestHandler(cgImage: image, orientation: orientation, options: [:])
-        
-        // Request dispatch to a background thread. EXPERIMENT changing qos and see how it affects responsiveness.
-        DispatchQueue.global(qos: .background).async {
-            do {
-                try textDetectionHandler.perform([textDetectionRequest])
-            } catch {
-                print(error)
-            }
+        do {
+            try textDetectionHandler.perform([textDetectionRequest])
+        } catch {
+            print(error)
         }
     }
     
@@ -68,5 +64,9 @@ class TextFinder: NSObject {
         broadcastNotification(name: TextFinder.NOTIFY_TEXT_DETECTION_COMPLETE)
     }
     
+    public func reset() {
+        self.inputImage = UIImage()
+        self.textBoxes = [CGRect]()
+    }
     
 }

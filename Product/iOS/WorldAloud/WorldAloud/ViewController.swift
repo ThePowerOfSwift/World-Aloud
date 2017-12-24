@@ -49,7 +49,8 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, ViewControl
                     operatingMode.processing()
                     break
                 case ReadTextState.processing, .reading:
-                    operatingMode.halt()
+                    operatingMode.cleanup()
+                    operatingMode.liveView()
                     break
                 default: // nothing to do.
                     break
