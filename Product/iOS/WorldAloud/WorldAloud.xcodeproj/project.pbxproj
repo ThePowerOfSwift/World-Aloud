@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D0DEEB31FEFBCDA00B69889 /* podfile in Resources */ = {isa = PBXBuildFile; fileRef = 2D0DEEB21FEFBCDA00B69889 /* podfile */; };
+		2D75338F1FEFBDB900CC24F4 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D75338E1FEFBDB900CC24F4 /* libz.tbd */; };
 		2D7F61021FEB446400978118 /* TextFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7F61011FEB446400978118 /* TextFinder.swift */; };
 		2D7F61041FEB466100978118 /* TextReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7F61031FEB466100978118 /* TextReader.swift */; };
 		2DA371681FE6DF4900FB8DB5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA371671FE6DF4900FB8DB5 /* AppDelegate.swift */; };
@@ -22,6 +24,7 @@
 		2DA371961FE9AC8200FB8DB5 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA371951FE9AC8200FB8DB5 /* CameraPreview.swift */; };
 		2DC25FB01FEC88ED00107C3D /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC25FAF1FEC88ED00107C3D /* ImageProcessor.swift */; };
 		2DCAAEFB1FEBBD800054A2C0 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAAEFA1FEBBD800054A2C0 /* Utilities.swift */; };
+		67E6BB9720A48B9B06B88012 /* Pods_WorldAloud.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7762ACCC52E6E7AA2E6F3CA6 /* Pods_WorldAloud.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +38,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2D0DEEB21FEFBCDA00B69889 /* podfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = podfile; sourceTree = "<group>"; };
+		2D75338E1FEFBDB900CC24F4 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		2D7F61011FEB446400978118 /* TextFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFinder.swift; sourceTree = "<group>"; };
 		2D7F61031FEB466100978118 /* TextReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextReader.swift; sourceTree = "<group>"; };
 		2DA371641FE6DF4900FB8DB5 /* WorldAloud.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WorldAloud.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -54,6 +59,9 @@
 		2DA371951FE9AC8200FB8DB5 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 		2DC25FAF1FEC88ED00107C3D /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
 		2DCAAEFA1FEBBD800054A2C0 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		7762ACCC52E6E7AA2E6F3CA6 /* Pods_WorldAloud.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WorldAloud.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A717F970E82DF3598B69B989 /* Pods-WorldAloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WorldAloud.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WorldAloud/Pods-WorldAloud.debug.xcconfig"; sourceTree = "<group>"; };
+		DF456F48AF31B330DF40537A /* Pods-WorldAloud.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WorldAloud.release.xcconfig"; path = "Pods/Target Support Files/Pods-WorldAloud/Pods-WorldAloud.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +69,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D75338F1FEFBDB900CC24F4 /* libz.tbd in Frameworks */,
+				67E6BB9720A48B9B06B88012 /* Pods_WorldAloud.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,9 +87,12 @@
 		2DA3715B1FE6DF4900FB8DB5 = {
 			isa = PBXGroup;
 			children = (
+				2D0DEEB21FEFBCDA00B69889 /* podfile */,
 				2DA371661FE6DF4900FB8DB5 /* WorldAloud */,
 				2DA3717B1FE6DF4900FB8DB5 /* WorldAloudTests */,
 				2DA371651FE6DF4900FB8DB5 /* Products */,
+				AF98363F05B64B234ADEB1D7 /* Pods */,
+				80AB54D2871E6749F378211D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -147,6 +160,24 @@
 			path = CustomObjects;
 			sourceTree = "<group>";
 		};
+		80AB54D2871E6749F378211D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2D75338E1FEFBDB900CC24F4 /* libz.tbd */,
+				7762ACCC52E6E7AA2E6F3CA6 /* Pods_WorldAloud.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		AF98363F05B64B234ADEB1D7 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				A717F970E82DF3598B69B989 /* Pods-WorldAloud.debug.xcconfig */,
+				DF456F48AF31B330DF40537A /* Pods-WorldAloud.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -154,9 +185,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2DA371811FE6DF4900FB8DB5 /* Build configuration list for PBXNativeTarget "WorldAloud" */;
 			buildPhases = (
+				F44DD53B1467EBDA7DFC9E20 /* [CP] Check Pods Manifest.lock */,
 				2DA371601FE6DF4900FB8DB5 /* Sources */,
 				2DA371611FE6DF4900FB8DB5 /* Frameworks */,
 				2DA371621FE6DF4900FB8DB5 /* Resources */,
+				8A4AD9346F2E30A8E913D274 /* [CP] Embed Pods Frameworks */,
+				20981C7AF08983B984D49AAF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -232,6 +266,7 @@
 			files = (
 				2DA371721FE6DF4900FB8DB5 /* LaunchScreen.storyboard in Resources */,
 				2DA3716F1FE6DF4900FB8DB5 /* Assets.xcassets in Resources */,
+				2D0DEEB31FEFBCDA00B69889 /* podfile in Resources */,
 				2DA3716D1FE6DF4900FB8DB5 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -244,6 +279,60 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		20981C7AF08983B984D49AAF /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WorldAloud/Pods-WorldAloud-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8A4AD9346F2E30A8E913D274 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-WorldAloud/Pods-WorldAloud-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/TesseractOCRiOS/TesseractOCR.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TesseractOCR.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WorldAloud/Pods-WorldAloud-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F44DD53B1467EBDA7DFC9E20 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-WorldAloud-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2DA371601FE6DF4900FB8DB5 /* Sources */ = {
@@ -334,6 +423,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -391,6 +481,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -411,6 +502,7 @@
 		};
 		2DA371821FE6DF4900FB8DB5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A717F970E82DF3598B69B989 /* Pods-WorldAloud.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -426,6 +518,7 @@
 		};
 		2DA371831FE6DF4900FB8DB5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DF456F48AF31B330DF40537A /* Pods-WorldAloud.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
