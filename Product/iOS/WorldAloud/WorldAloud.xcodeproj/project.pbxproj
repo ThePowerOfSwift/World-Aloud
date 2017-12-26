@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2D0DEEB31FEFBCDA00B69889 /* podfile in Resources */ = {isa = PBXBuildFile; fileRef = 2D0DEEB21FEFBCDA00B69889 /* podfile */; };
+		2D45375C1FEFD638003AACB4 /* tessdata in Resources */ = {isa = PBXBuildFile; fileRef = 2D45375B1FEFD638003AACB4 /* tessdata */; };
+		2D45375D1FEFD638003AACB4 /* tessdata in Resources */ = {isa = PBXBuildFile; fileRef = 2D45375B1FEFD638003AACB4 /* tessdata */; };
 		2D75338F1FEFBDB900CC24F4 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D75338E1FEFBDB900CC24F4 /* libz.tbd */; };
 		2D7F61021FEB446400978118 /* TextFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7F61011FEB446400978118 /* TextFinder.swift */; };
 		2D7F61041FEB466100978118 /* TextReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7F61031FEB466100978118 /* TextReader.swift */; };
@@ -38,7 +40,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2D0DEEB21FEFBCDA00B69889 /* podfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = podfile; sourceTree = "<group>"; };
+		2D0DEEB21FEFBCDA00B69889 /* podfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		2D45375B1FEFD638003AACB4 /* tessdata */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tessdata; sourceTree = "<group>"; };
 		2D75338E1FEFBDB900CC24F4 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		2D7F61011FEB446400978118 /* TextFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFinder.swift; sourceTree = "<group>"; };
 		2D7F61031FEB466100978118 /* TextReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextReader.swift; sourceTree = "<group>"; };
@@ -108,6 +111,7 @@
 		2DA371661FE6DF4900FB8DB5 /* WorldAloud */ = {
 			isa = PBXGroup;
 			children = (
+				2D45375B1FEFD638003AACB4 /* tessdata */,
 				2DA371891FE6DF6700FB8DB5 /* OperatingModes */,
 				2DA371901FE8443B00FB8DB5 /* CustomObjects */,
 				2DA371871FE6DF5800FB8DB5 /* Helper */,
@@ -266,6 +270,7 @@
 			files = (
 				2DA371721FE6DF4900FB8DB5 /* LaunchScreen.storyboard in Resources */,
 				2DA3716F1FE6DF4900FB8DB5 /* Assets.xcassets in Resources */,
+				2D45375C1FEFD638003AACB4 /* tessdata in Resources */,
 				2D0DEEB31FEFBCDA00B69889 /* podfile in Resources */,
 				2DA3716D1FE6DF4900FB8DB5 /* Main.storyboard in Resources */,
 			);
@@ -275,6 +280,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D45375D1FEFD638003AACB4 /* tessdata in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

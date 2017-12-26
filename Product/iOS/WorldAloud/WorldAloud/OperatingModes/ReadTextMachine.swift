@@ -20,6 +20,7 @@ class ReadTextMachine: NSObject {
     private var cameraPreview: CameraPreview!
     private var speech = SpeechSynthesizer() // needs to be unique in order to control multiple requests (Singleton pattern).
     private var textFinder: TextFinder! // need asynchronous access to it, so I will save it in this scope.
+    private var textReader: TextReader!
     
     // internal usage variables (just so we don't have to keep using classes getters all the time as it's more time consuming)
     
@@ -42,6 +43,11 @@ class ReadTextMachine: NSObject {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(self.doneFindingText),
                                                name: notification3,
+                                               object: nil)
+        let notification4 = Notification.Name(rawValue: TextReader.NOTIFY_OCR_COMPLETE)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.ocrComplete),
+                                               name: notification4,
                                                object: nil)
     }
     deinit {
@@ -167,9 +173,23 @@ class ReadTextMachine: NSObject {
         }
         let finalImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
+        print("About to trigger OCR")
         self.cleanup()
         viewControllerDelegate?.displayImage(finalImage!, xPosition: 0, yPosition: 0)
-//        self.liveView()
+        self.textReader = TextReader()
+        self.textReader.runOCR(image: finalImage!)
+    }
+    
+    @IBAction private func ocrComplete() {
+        print("Notification received from TextReader.")
+        guard let textReader = self.textReader else {
+            print("Error retrieving OCR data.")
+            return
+        }
+        if let identifiedText = textReader.getRecognizedText() {
+            print(identifiedText)
+            // trigger Speech Synthesizer.
+        }
     }
     
     private func fixRotation(_ image: UIImage) -> CIImage? {

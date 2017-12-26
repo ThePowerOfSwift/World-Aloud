@@ -29,11 +29,12 @@ class ImageProcessor: NSObject {
         return self.affineTransform(image: image, transform: transform)
     }
     
-    public static func applyColorCorrection(image: CIImage, saturation: CGFloat, contrast: CGFloat) -> CIImage? {
+    public static func applyColorCorrection(image: CIImage, saturation: CGFloat, contrast: CGFloat, brightness: CGFloat) -> CIImage? {
         guard let filter = CIFilter(name: "CIColorControls",
                                     withInputParameters: ["inputImage":image,
                                                           "inputSaturation":saturation,
-                                                          "inputContrast":contrast])
+                                                          "inputContrast":contrast,
+                                                          "inputBrightness":brightness])
             else {
                 print("Unable to create color correction filter.")
                 return nil

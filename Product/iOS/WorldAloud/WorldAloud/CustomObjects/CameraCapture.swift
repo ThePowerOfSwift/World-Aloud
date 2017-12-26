@@ -18,8 +18,8 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
     private var image: UIImage?
     private var deviceOrientationOnCapture: UIDeviceOrientation!
     
-    static let NOTIFY_PHOTO_CAPTURED = "agu3rra.worldAloud.photo.captured"
-    static let NOTIFY_SESSION_STOPPED = "agu3rra.worldAloud.session.stopped"
+    public static let NOTIFY_PHOTO_CAPTURED = "agu3rra.worldAloud.photo.captured"
+    public static let NOTIFY_SESSION_STOPPED = "agu3rra.worldAloud.session.stopped"
     
     // INITIALIZER
     override init() {
