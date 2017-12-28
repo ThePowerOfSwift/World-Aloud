@@ -85,21 +85,25 @@ class CameraCapture: NSObject, AVCapturePhotoCaptureDelegate {
     }
     
     public func startSession() {
-        if self.session.isRunning {
-            return
+        DispatchQueue.global(qos: .userInteractive).async {
+            if self.session.isRunning {
+                return
+            }
+            self.session.startRunning()
+            print("Live capture started.")
         }
-        self.session.startRunning()
-        print("Live capture started.")
     }
     
     public func stopSession() {
-        if !self.session.isRunning {
-            print("already stopped")
-            return
+        DispatchQueue.global(qos: .userInteractive).async {
+            if !self.session.isRunning {
+                print("already stopped")
+                return
+            }
+            self.session.stopRunning()
+            
+            print("Live capture stopped.")
         }
-        self.session.stopRunning()
-
-        print("Live capture stopped.")
         broadcastNotification(name: CameraCapture.NOTIFY_SESSION_STOPPED)
     }
     

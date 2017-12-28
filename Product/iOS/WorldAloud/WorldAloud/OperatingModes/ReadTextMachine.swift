@@ -9,7 +9,7 @@
 import UIKit
 
 enum ReadTextState {
-    case initial, liveView, processing, reading, halt, cleanup
+    case initial, liveView, processing, reading, cleanup
 }
 
 class ReadTextMachine: NSObject {
@@ -22,34 +22,25 @@ class ReadTextMachine: NSObject {
     private var textFinder: TextFinder! // need asynchronous access to it, so I will save it in this scope.
     private var textReader: TextReader!
     
-    // internal usage variables (just so we don't have to keep using classes getters all the time as it's more time consuming)
-    
     // Initializer / Deinitializer
     override init() {
         super.init()
         
         // Setup event observers
-        let notification1 = Notification.Name(rawValue: CameraCapture.NOTIFY_PHOTO_CAPTURED)
+        self.setupObserver(name: CameraCapture.NOTIFY_PHOTO_CAPTURED, selector: #selector(self.doneTakingPhoto))
+        self.setupObserver(name: CameraCapture.NOTIFY_SESSION_STOPPED, selector: #selector(self.cameraSessionStopped))
+        self.setupObserver(name: TextFinder.NOTIFY_TEXT_DETECTION_COMPLETE, selector: #selector(self.doneFindingText))
+        self.setupObserver(name: TextReader.NOTIFY_OCR_COMPLETE, selector: #selector(self.ocrComplete))
+        self.setupObserver(name: SpeechSynthesizer.NOTIFY_DONE_SPEAKING, selector: #selector(self.doneSpeaking))
+    }
+    private func setupObserver(name: String, selector: Selector) {
+        let notification = Notification.Name(rawValue: name)
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(self.doneTakingPhoto),
-                                               name: notification1,
-                                               object: nil)
-        let notification2 = Notification.Name(rawValue: CameraCapture.NOTIFY_SESSION_STOPPED)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(self.cameraSessionStopped),
-                                               name: notification2,
-                                               object: nil)
-        let notification3 = Notification.Name(rawValue: TextFinder.NOTIFY_TEXT_DETECTION_COMPLETE)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(self.doneFindingText),
-                                               name: notification3,
-                                               object: nil)
-        let notification4 = Notification.Name(rawValue: TextReader.NOTIFY_OCR_COMPLETE)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(self.ocrComplete),
-                                               name: notification4,
+                                               selector: selector,
+                                               name: notification,
                                                object: nil)
     }
+    
     deinit {
         NotificationCenter.default.removeObserver(self) // cleanup observer once instance no longer exists
     }
@@ -67,14 +58,14 @@ class ReadTextMachine: NSObject {
     /// Activates camera view 
     public func liveView() {
         self.currentState = .liveView
-        // add a cleanup routine either here or on halt. Decide later.
-        
         self.camera.startSession()
         
         // configure preview and add it to app view
-        let viewLayer = self.viewControllerDelegate?.getViewLayer()
-        self.cameraPreview = CameraPreview(session: self.camera.getSession(), container: viewLayer!)
-        self.cameraPreview?.addPreview()
+        DispatchQueue.main.async {
+            let viewLayer = self.viewControllerDelegate?.getViewLayer()
+            self.cameraPreview = CameraPreview(session: self.camera.getSession(), container: viewLayer!)
+            self.cameraPreview?.addPreview()
+        }
         
         // inform user that app is in live view mode
         speech.utter("Camera view. Tap to start.")
@@ -94,16 +85,15 @@ class ReadTextMachine: NSObject {
     
     @IBAction private func cameraSessionStopped() {
         if let image = self.camera.getImage() {
-            viewControllerDelegate?.displayImage(image, xPosition: 0, yPosition: 0) // show photo on view.
+//            viewControllerDelegate?.displayImage(image, xPosition: 0, yPosition: 20) // show photo on view.
             
             // trigger vision request
-            textFinder = TextFinder(inputImage: self.camera.getImage()!)
+            textFinder = TextFinder(inputImage: image)
             textFinder.findText()
             // notification triggers doneFindingText when done.
         }
         else { // something went wrong on image capture. Return to live view.
-            self.cleanup()
-            self.liveView()
+            self.restartLoop()
         }
     }
     
@@ -116,28 +106,28 @@ class ReadTextMachine: NSObject {
             self.liveView()
         }
         else {
-            // Draw red boxes on top of user view.
-            let image = self.textFinder.getInputImage()
-            // previous process ran on the background, so we need to change back to the main queue in order to update the UI.
-            
-            let view = self.viewControllerDelegate?.getView()
-            let viewFrameWidth = view!.frame.width
-            let conversionRatio = viewFrameWidth / image.size.width
-            let scaledHeight = conversionRatio * image.size.height
-            for box in textBoxes {
-                let x = viewFrameWidth * box.origin.x // + imageView.frame.origin.x
-                let width = viewFrameWidth * box.width
-                let height = scaledHeight * box.height
-                let y = scaledHeight * (1-box.origin.y) - height // + imageView.frame.origin.y
-                let textRectangle = CGRect(x: x, y: y, width: width, height: height)
-                
-                // Draw rectangles on UI for areas of detected text
-                let redBox = UIView()
-                redBox.backgroundColor = .red
-                redBox.alpha = 0.25
-                redBox.frame = textRectangle
-                view!.addSubview(redBox)
-            }
+//            // Draw red boxes on top of user view.
+//            let image = self.textFinder.getInputImage()
+//            // previous process ran on the background, so we need to change back to the main queue in order to update the UI.
+//
+//            let view = self.viewControllerDelegate?.getView()
+//            let viewFrameWidth = view!.frame.width
+//            let conversionRatio = viewFrameWidth / image.size.width
+//            let scaledHeight = conversionRatio * image.size.height
+//            for box in textBoxes {
+//                let x = viewFrameWidth * box.origin.x // + imageView.frame.origin.x
+//                let width = viewFrameWidth * box.width
+//                let height = scaledHeight * box.height
+//                let y = scaledHeight * (1-box.origin.y) - height // + imageView.frame.origin.y
+//                let textRectangle = CGRect(x: x, y: y, width: width, height: height)
+//
+//                // Draw rectangles on UI for areas of detected text
+//                let redBox = UIView()
+//                redBox.backgroundColor = .red
+//                redBox.alpha = 0.25
+//                redBox.frame = textRectangle
+//                view!.addSubview(redBox)
+//            }
             self.imageAssembly()
         }
     }
@@ -146,50 +136,45 @@ class ReadTextMachine: NSObject {
         let image = self.textFinder.getInputImage()
         
         // Fix orientation and origin of the generated image
-        guard let imageFixedRotation = self.fixRotation(image) else {
-            print("Error applying rotation.")
-            return
-        }
-        guard let imageFixedTranslation = ImageProcessor.translateImage(imageFixedRotation,
-                                                                        horizontalTranslation: -imageFixedRotation.extent.origin.x,
-                                                                        verticalTranslation: -imageFixedRotation.extent.origin.y)
-            else {
-                print("Error during translation.")
-                return
-        }
-        
-        // Crop and generate single image
-        let textBoxes = self.textFinder.getTextBoxes() // remember these are normalized text boxes
-        UIGraphicsBeginImageContext(imageFixedTranslation.extent.size)
-        for box in textBoxes {
-            let boxAbsolute = ImageProcessor.getAbsoluteRectangleFromNormalized(image: imageFixedTranslation, normalRectangle: box)
-            guard let imageStringOfText = ImageProcessor.cropImage(imageFixedTranslation, cropRectangle: boxAbsolute) else {
-                print("Error on image crop")
-                return
-            }
-            UIImage(ciImage: imageStringOfText).draw(at:
-                CGPoint(x: boxAbsolute.origin.x,
-                        y: imageFixedTranslation.extent.height - boxAbsolute.size.height - boxAbsolute.origin.y))
-        }
-        let finalImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        print("About to trigger OCR")
-        self.cleanup()
-        viewControllerDelegate?.displayImage(finalImage!, xPosition: 0, yPosition: 0)
-        self.textReader = TextReader()
-        self.textReader.runOCR(image: finalImage!)
+        if let imageFixedRotation = self.fixRotation(image) {
+            if let imageFixedTranslation = ImageProcessor.translateImage(imageFixedRotation,
+                                                                            horizontalTranslation: -imageFixedRotation.extent.origin.x,
+                                                                            verticalTranslation: -imageFixedRotation.extent.origin.y) {
+                // Crop and generate single image
+                let textBoxes = self.textFinder.getTextBoxes() // remember these are normalized text boxes
+                UIGraphicsBeginImageContext(imageFixedTranslation.extent.size)
+                UIImage(ciImage: imageFixedTranslation).draw(at: CGPoint(x: 0, y: 0))
+                //        for box in textBoxes {
+                //            let boxAbsolute = ImageProcessor.getAbsoluteRectangleFromNormalized(image: imageFixedTranslation, normalRectangle: box)
+                //            guard let imageStringOfText = ImageProcessor.cropImage(imageFixedTranslation, cropRectangle: boxAbsolute) else {
+                //                print("Error on image crop")
+                //                self.restartLoop()
+                //                return
+                //            }
+                //            UIImage(ciImage: imageStringOfText).draw(at:
+                //                CGPoint(x: boxAbsolute.origin.x,
+                //                        y: imageFixedTranslation.extent.height - boxAbsolute.size.height - boxAbsolute.origin.y))
+                //        }
+                let finalImage = UIGraphicsGetImageFromCurrentImageContext()
+                UIGraphicsEndImageContext()
+                print("About to trigger OCR")
+                viewControllerDelegate?.displayImage(finalImage!, xPosition: 0, yPosition: 20)
+                self.textReader = TextReader()
+                self.textReader.runOCR(image: finalImage!)
+            } else {self.restartLoop()}
+        } else {self.restartLoop()}
     }
     
     @IBAction private func ocrComplete() {
         print("Notification received from TextReader.")
-        guard let textReader = self.textReader else {
-            print("Error retrieving OCR data.")
-            return
-        }
-        if let identifiedText = textReader.getRecognizedText() {
-            print(identifiedText)
-            // trigger Speech Synthesizer.
-        }
+        if let textReader = self.textReader {
+            if let identifiedText = textReader.getRecognizedText() {
+                if !identifiedText.isEmpty {
+                    print(identifiedText)
+                    self.reading(identifiedText)
+                } else {self.restartLoop()}
+            } else {self.restartLoop()}
+        } else {self.restartLoop()}
     }
     
     private func fixRotation(_ image: UIImage) -> CIImage? {
@@ -205,26 +190,45 @@ class ReadTextMachine: NSObject {
         return ImageProcessor.rotateImage(ciImage, angle: rotationAngles[orientation]!)
     }
     
-    private func reading() {
+    private func reading(_ text: String) {
         self.currentState = .reading
+        self.speech.utter(text)
+    }
+    
+    @IBAction private func doneSpeaking() {
+        if self.currentState == .reading { // remember the Synthesizer broadcasts its message even when it's done speaking a program status
+            self.restartLoop()
+        }
     }
     
     /// Stops all processing or reading activity and goes back to live view
     public func halt() {
-        self.currentState = .halt
+        self.cleanup()
+        self.currentState = .initial
     }
     
     public func cleanup() {
+        print("Cleanup in progress...")
         self.currentState = .cleanup
         self.speech.reset()
         if let textFinder = self.textFinder {
             textFinder.reset()
         }
+        if let textReader = self.textReader {
+            textReader.reset()
+        }
         
         // remove all subviews previously added
-        let view = viewControllerDelegate?.getView()
-        for item in view!.subviews {
-            item.removeFromSuperview()
+        DispatchQueue.main.async {
+            let view = self.viewControllerDelegate?.getView()
+            for item in view!.subviews {
+                item.removeFromSuperview()
+            }
         }
+    }
+    
+    public func restartLoop() {
+        self.cleanup()
+        self.liveView()
     }
 }

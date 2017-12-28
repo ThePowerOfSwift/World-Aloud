@@ -15,7 +15,7 @@ class TextFinder: NSObject {
     // ATTRIBUTES
     private var inputImage: UIImage
     private var textBoxes = [CGRect]()
-    static let NOTIFY_TEXT_DETECTION_COMPLETE = "agu3rra.worldAloud.text.detection.complete"
+    public static let NOTIFY_TEXT_DETECTION_COMPLETE = "agu3rra.worldAloud.text.detection.complete"
     
     // INITIALIZER
     init(inputImage: UIImage) {
@@ -44,11 +44,14 @@ class TextFinder: NSObject {
         // Vision Framework request setup
         let textDetectionRequest = VNDetectTextRectanglesRequest(completionHandler: self.findTextBoxes)
         let textDetectionHandler = VNImageRequestHandler(cgImage: image, orientation: orientation, options: [:])
-        do {
-            try textDetectionHandler.perform([textDetectionRequest])
-        } catch {
-            print(error)
+        DispatchQueue.global(qos: .background).async {
+            do {
+                try textDetectionHandler.perform([textDetectionRequest])
+            } catch {
+                print(error)
+            }
         }
+        
     }
     
     private func findTextBoxes(request: VNRequest, error: Error?){

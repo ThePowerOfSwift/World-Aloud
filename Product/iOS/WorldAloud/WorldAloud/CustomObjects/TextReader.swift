@@ -33,14 +33,17 @@ class TextReader: NSObject, G8TesseractDelegate {
     
     // METHODS
     public func runOCR(image: UIImage) {
-        self.tesseract.image = image
-        self.tesseract.recognize()
-        self.recognizedText = self.tesseract.recognizedText
-        print("Recognition complete.")
-        broadcastNotification(name: TextReader.NOTIFY_OCR_COMPLETE)
+        DispatchQueue.global(qos: .background).async {
+            self.tesseract.image = image
+            self.tesseract.recognize()
+            self.recognizedText = self.tesseract.recognizedText
+            print("Recognition complete.")
+            broadcastNotification(name: TextReader.NOTIFY_OCR_COMPLETE)
+        }
     }
     
     public func reset() {
+        print("Request to cancel recognition received.")
         self.cancelOngoingRequest = true
         if self.shouldCancelImageRecognition(for: self.tesseract) {
             print("OCR request cancelled.")

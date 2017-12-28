@@ -15,7 +15,7 @@ class SpeechSynthesizer: NSObject, AVSpeechSynthesizerDelegate {
     private var queue = [String]() // chosen a queue in case new requests come in the middle of an uttering.
     private var voice: AVSpeechSynthesisVoice!
     private let speech = AVSpeechSynthesizer()
-    private static let NOTIFY_DONE_SPEAKING = "agu3rra.worldAloud.done.speaking"
+    public static let NOTIFY_DONE_SPEAKING = "agu3rra.worldAloud.done.speaking"
     
     // INITIALIZER
     override init() {

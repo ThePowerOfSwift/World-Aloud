@@ -49,8 +49,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, ViewControl
                     operatingMode.processing()
                     break
                 case ReadTextState.processing, .reading:
-                    operatingMode.cleanup()
-                    operatingMode.liveView()
+                    operatingMode.restartLoop()
                     break
                 default: // nothing to do.
                     break
@@ -71,12 +70,14 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, ViewControl
     }
     
     public func displayImage(_ image: UIImage, xPosition: CGFloat, yPosition: CGFloat){
-        let conversionRatio = self.view.frame.width / image.size.width
-        let scaledHeigth = conversionRatio * image.size.height
-        let imageView = UIImageView(frame: CGRect(x: xPosition, y: yPosition, width: self.view.frame.width, height: scaledHeigth))
-        imageView.contentMode = .scaleAspectFit
-        imageView.image = image
-        self.view.addSubview(imageView)
+        DispatchQueue.main.async {
+            let conversionRatio = self.view.frame.width / image.size.width
+            let scaledHeigth = conversionRatio * image.size.height
+            let imageView = UIImageView(frame: CGRect(x: xPosition, y: yPosition, width: self.view.frame.width, height: scaledHeigth))
+            imageView.contentMode = .scaleAspectFit
+            imageView.image = image
+            self.view.addSubview(imageView)
+        }
     }
     
 }
