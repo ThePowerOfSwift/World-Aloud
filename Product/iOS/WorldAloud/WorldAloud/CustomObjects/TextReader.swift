@@ -23,7 +23,7 @@ class TextReader: NSObject, G8TesseractDelegate {
         self.tesseract = G8Tesseract(language: "eng")
         super.init()
         self.tesseract.delegate = self
-        self.tesseract.charWhitelist = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUWXYZ$,.:!@%"
+        self.tesseract.charWhitelist = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUWXYZ$,.:!@%?"
     }
     
     // GETTERS AND SETTERS
@@ -45,7 +45,8 @@ class TextReader: NSObject, G8TesseractDelegate {
     public func reset() {
         print("Request to cancel recognition received.")
         self.cancelOngoingRequest = true
-        if self.shouldCancelImageRecognition(for: self.tesseract) {
+        let cancel = self.shouldCancelImageRecognition(for: self.tesseract)
+        if cancel {
             print("OCR request cancelled.")
         } else {
             print("Something went wront while canceling OCR request.")

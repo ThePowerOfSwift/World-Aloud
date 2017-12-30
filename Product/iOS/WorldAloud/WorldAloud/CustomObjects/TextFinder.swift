@@ -11,7 +11,7 @@ import Vision
 
 // Uses Apple's Vision Framework to detect text regions. This is done to minimize the work required by the OCREngine.
 // Detecting text is one thing. Converting Text is another. This one if the former.
-class TextFinder: NSObject {
+class TextFinder: NSObject{
     // ATTRIBUTES
     private var inputImage: UIImage
     private var textBoxes = [CGRect]()
@@ -68,7 +68,6 @@ class TextFinder: NSObject {
     }
     
     public func reset() {
-        self.inputImage = UIImage()
         self.textBoxes = [CGRect]()
     }
     

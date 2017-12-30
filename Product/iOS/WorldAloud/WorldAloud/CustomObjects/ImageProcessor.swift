@@ -84,4 +84,29 @@ class ImageProcessor: NSObject {
             return nil
         }
     }
+    
+    /// For some reason, eventhough UIImage do contain an orientation property informing how they should be placed, it is simply not readly passed to any routines that use them.
+    ///
+    /// - Parameter image: an UIImage that needs reorienting
+    /// - Returns: A correctly oriented CIImage that can have multiple filters applied to it.
+    public static func fixOrientation(_ image: UIImage) -> CIImage? {
+        // Required rotation angles were determined experimentally.
+        guard let ciImage = CIImage(image: image) else {return nil}
+        let orientation = image.imageOrientation.rawValue
+        if orientation == 0 { return ciImage }
+        let validOrientations: Set<Int> = [1,2,3]
+        if !validOrientations.contains(orientation) { return nil }
+        let rotationAngles: [Int : CGFloat] = [3 : -CGFloat(Double.pi/2),
+                                               2 : CGFloat(Double.pi/2),
+                                               1 : CGFloat(Double.pi)]
+        if let rotatedImage = ImageProcessor.rotateImage(ciImage, angle: rotationAngles[orientation]!) {
+            if let translatedImage = ImageProcessor.translateImage(rotatedImage,
+                                                                   horizontalTranslation: -rotatedImage.extent.origin.x,
+                                                                   verticalTranslation: -rotatedImage.extent.origin.y) {
+                return translatedImage
+            }
+            return nil
+        }
+        return nil
+    }
 }

@@ -25,7 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let operatingMode = viewController.operatingMode
         if (operatingMode is ReadTextMachine) {
             let operatingMode = operatingMode as! ReadTextMachine
-            operatingMode.halt()
+            operatingMode.background()
         }
     }
 

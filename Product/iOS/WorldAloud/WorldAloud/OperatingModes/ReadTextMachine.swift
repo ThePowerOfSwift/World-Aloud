@@ -9,29 +9,39 @@
 import UIKit
 
 enum ReadTextState {
-    case initial, liveView, processing, reading, cleanup
+    case initial
+    case liveView
+    case takingPhoto
+    case isolatingText
+    case imageProcessing
+    case runningOCR
+    case reading
+    case cleanup
+    case background
 }
 
 class ReadTextMachine: NSObject {
     // Attributes
-    private var currentState = ReadTextState.initial
-    private var camera = CameraCapture()
+    private var currentState: ReadTextState
     private weak var viewControllerDelegate: ViewControllerDelegate? // variable must be weak
-    private var cameraPreview: CameraPreview!
-    private var speech = SpeechSynthesizer() // needs to be unique in order to control multiple requests (Singleton pattern).
-    private var textFinder: TextFinder! // need asynchronous access to it, so I will save it in this scope.
-    private var textReader: TextReader!
+    private let camera = CameraCapture()
+    private let speech = SpeechSynthesizer() // needs to be unique in order to control multiple requests (Singleton pattern).
+    private var preview: CameraPreview?
+    private var textFinder: TextFinder?
+    private var textReader: TextReader?
     
     // Initializer / Deinitializer
     override init() {
+        self.currentState = .initial
         super.init()
-        
         // Setup event observers
         self.setupObserver(name: CameraCapture.NOTIFY_PHOTO_CAPTURED, selector: #selector(self.doneTakingPhoto))
         self.setupObserver(name: CameraCapture.NOTIFY_SESSION_STOPPED, selector: #selector(self.cameraSessionStopped))
+        self.setupObserver(name: CameraCapture.NOTIFY_SESSION_STARTED, selector: #selector(self.cameraSessionStarted))
         self.setupObserver(name: TextFinder.NOTIFY_TEXT_DETECTION_COMPLETE, selector: #selector(self.doneFindingText))
         self.setupObserver(name: TextReader.NOTIFY_OCR_COMPLETE, selector: #selector(self.ocrComplete))
         self.setupObserver(name: SpeechSynthesizer.NOTIFY_DONE_SPEAKING, selector: #selector(self.doneSpeaking))
+        self.setupObserver(name: SpeechSynthesizer.NOTIFY_DONE_CANCELING, selector: #selector(self.doneCancelingSpeeches))
     }
     private func setupObserver(name: String, selector: Selector) {
         let notification = Notification.Name(rawValue: name)
@@ -55,95 +65,104 @@ class ReadTextMachine: NSObject {
     }
     
     // Operations
-    /// Activates camera view 
-    public func liveView() {
-        self.currentState = .liveView
-        self.camera.startSession()
-        
-        // configure preview and add it to app view
-        DispatchQueue.main.async {
-            let viewLayer = self.viewControllerDelegate?.getViewLayer()
-            self.cameraPreview = CameraPreview(session: self.camera.getSession(), container: viewLayer!)
-            self.cameraPreview?.addPreview()
+    
+    public func handleScreenTap() {
+        switch self.currentState {
+        case .liveView:
+            self.takePhoto()
+            break
+        case .takingPhoto, // states that allow canceling
+             .isolatingText,
+             .imageProcessing,
+             .runningOCR,
+             .reading:
+            self.cleanup()
+            break
+        default: // nothing to do.
+            break
         }
-        
-        // inform user that app is in live view mode
-        speech.utter("Camera view. Tap to start.")
     }
     
-    public func processing() {
-        self.currentState = .processing
+    public func initial() {
+        // This routine gets executed by the viewDidLoad() from the corresponding ViewController.
+        print("Initializing state machine.")
+        let viewLayer = self.viewControllerDelegate?.getViewLayer()
+        self.preview = CameraPreview(session: self.camera.getSession(), container: viewLayer!)
+    }
+    
+    /// Activates camera view
+    public func liveView() {
+        print("liveView loading...")
+        self.camera.startSession()
+        DispatchQueue.main.async {
+            self.preview?.addPreview()
+        }
+        print("liveView loaded.")
+    }
+    
+    @IBAction private func cameraSessionStarted(){
+        // Application isn't in liveView mode until session has successfully started.
+        self.currentState = .liveView
+        self.speech.utter("Camera view. Tap to start.")
+    }
+    
+    private func takePhoto() {
+        print("processing state triggered.")
+        self.currentState = .takingPhoto
+        speech.utter("Processing.")
         self.camera.snapPhoto()
     }
     
     // Executes after the observer captures the notification comming from CameraCapture
     @IBAction private func doneTakingPhoto() {
-        speech.utter("Processing.")
-        self.cameraPreview.removePreview()
+        print("Notification received. Photo available for processing.")
+        DispatchQueue.main.async {
+            self.preview?.removePreview()
+        }
         self.camera.stopSession()
     }
     
     @IBAction private func cameraSessionStopped() {
+        print("Notification received. AVCapture session stopped.")
         if let image = self.camera.getImage() {
 //            viewControllerDelegate?.displayImage(image, xPosition: 0, yPosition: 20) // show photo on view.
-            
-            // trigger vision request
-            textFinder = TextFinder(inputImage: image)
-            textFinder.findText()
+            self.currentState = .isolatingText
+            self.textFinder = TextFinder(inputImage: image)
+            self.textFinder?.findText()
             // notification triggers doneFindingText when done.
         }
-        else { // something went wrong on image capture. Return to live view.
-            self.restartLoop()
+        else { // something went wrong on image capture.
+            self.cleanup()
         }
     }
     
     @IBAction private func doneFindingText() {
-        let textBoxes = self.textFinder.getTextBoxes()
-        
-        if textBoxes.count <= 0 {
-            self.cleanup()
-            self.speech.utter("No text found.")
-            self.liveView()
-        }
-        else {
-//            // Draw red boxes on top of user view.
-//            let image = self.textFinder.getInputImage()
-//            // previous process ran on the background, so we need to change back to the main queue in order to update the UI.
-//
-//            let view = self.viewControllerDelegate?.getView()
-//            let viewFrameWidth = view!.frame.width
-//            let conversionRatio = viewFrameWidth / image.size.width
-//            let scaledHeight = conversionRatio * image.size.height
-//            for box in textBoxes {
-//                let x = viewFrameWidth * box.origin.x // + imageView.frame.origin.x
-//                let width = viewFrameWidth * box.width
-//                let height = scaledHeight * box.height
-//                let y = scaledHeight * (1-box.origin.y) - height // + imageView.frame.origin.y
-//                let textRectangle = CGRect(x: x, y: y, width: width, height: height)
-//
-//                // Draw rectangles on UI for areas of detected text
-//                let redBox = UIView()
-//                redBox.backgroundColor = .red
-//                redBox.alpha = 0.25
-//                redBox.frame = textRectangle
-//                view!.addSubview(redBox)
-//            }
-            self.imageAssembly()
-        }
+        print("Notification received. Vision processing complete.")
+        if let textFinder = self.textFinder {
+            let textBoxes = textFinder.getTextBoxes()
+            if textBoxes.count <= 0 {
+                self.cleanup()
+                self.speech.utter("No text found.")
+            }
+            else {
+                self.imageAssembly()
+            }
+        } else { self.cleanup()}
     }
     
     private func imageAssembly() {
-        let image = self.textFinder.getInputImage()
-        
-        // Fix orientation and origin of the generated image
-        if let imageFixedRotation = self.fixRotation(image) {
-            if let imageFixedTranslation = ImageProcessor.translateImage(imageFixedRotation,
-                                                                            horizontalTranslation: -imageFixedRotation.extent.origin.x,
-                                                                            verticalTranslation: -imageFixedRotation.extent.origin.y) {
+        print("Image assembly triggered.")
+        self.currentState = .imageProcessing
+        if let textFinder = self.textFinder {
+            let image = textFinder.getInputImage()
+            
+            // Fix orientation and origin of the generated image
+            if let imageReoriented = ImageProcessor.fixOrientation(image){
+                
                 // Crop and generate single image
-                let textBoxes = self.textFinder.getTextBoxes() // remember these are normalized text boxes
-                UIGraphicsBeginImageContext(imageFixedTranslation.extent.size)
-                UIImage(ciImage: imageFixedTranslation).draw(at: CGPoint(x: 0, y: 0))
+                //let textBoxes = textFinder.getTextBoxes() // remember these are normalized text boxes
+                UIGraphicsBeginImageContext(imageReoriented.extent.size)
+                UIImage(ciImage: imageReoriented).draw(at: CGPoint(x: 0, y: 0))
                 //        for box in textBoxes {
                 //            let boxAbsolute = ImageProcessor.getAbsoluteRectangleFromNormalized(image: imageFixedTranslation, normalRectangle: box)
                 //            guard let imageStringOfText = ImageProcessor.cropImage(imageFixedTranslation, cropRectangle: boxAbsolute) else {
@@ -160,61 +179,53 @@ class ReadTextMachine: NSObject {
                 print("About to trigger OCR")
                 viewControllerDelegate?.displayImage(finalImage!, xPosition: 0, yPosition: 20)
                 self.textReader = TextReader()
-                self.textReader.runOCR(image: finalImage!)
-            } else {self.restartLoop()}
-        } else {self.restartLoop()}
+                self.currentState = .runningOCR
+                self.textReader?.runOCR(image: finalImage!)
+            } else {self.cleanup()}
+        } else {self.cleanup()}
     }
     
     @IBAction private func ocrComplete() {
-        print("Notification received from TextReader.")
+        print("Notification received from TextReader. OCR Complete.")
         if let textReader = self.textReader {
             if let identifiedText = textReader.getRecognizedText() {
                 if !identifiedText.isEmpty {
                     print(identifiedText)
                     self.reading(identifiedText)
-                } else {self.restartLoop()}
-            } else {self.restartLoop()}
-        } else {self.restartLoop()}
-    }
-    
-    private func fixRotation(_ image: UIImage) -> CIImage? {
-        // Required rotation angles were determined experimentally.
-        guard let ciImage = CIImage(image: image) else {return nil}
-        let orientation = image.imageOrientation.rawValue
-        if orientation == 0 { return ciImage }
-        let validOrientations: Set<Int> = [1,2,3]
-        if !validOrientations.contains(orientation) { return nil }
-        let rotationAngles: [Int : CGFloat] = [3 : -CGFloat(Double.pi/2),
-                                               2 : CGFloat(Double.pi/2),
-                                               1 : CGFloat(Double.pi)]
-        return ImageProcessor.rotateImage(ciImage, angle: rotationAngles[orientation]!)
+                } else {self.cleanup()}
+            } else {self.cleanup()}
+        } else {self.cleanup()}
     }
     
     private func reading(_ text: String) {
+        print("Triggering read state.")
         self.currentState = .reading
         self.speech.utter(text)
     }
     
     @IBAction private func doneSpeaking() {
+        print("Done speaking something")
         if self.currentState == .reading { // remember the Synthesizer broadcasts its message even when it's done speaking a program status
-            self.restartLoop()
+            self.cleanup()
         }
     }
     
-    /// Stops all processing or reading activity and goes back to live view
-    public func halt() {
-        self.cleanup()
-        self.currentState = .initial
+    /// Stops all processing or reading activity
+    public func background() {
+        print("Background state called.")
+        self.currentState = .background
+        self.cleanup(callingState: self.currentState)
     }
     
-    public func cleanup() {
+    private func cleanup() {
         print("Cleanup in progress...")
         self.currentState = .cleanup
-        self.speech.reset()
         if let textFinder = self.textFinder {
+            print("Cleaning textFinder")
             textFinder.reset()
         }
         if let textReader = self.textReader {
+            print("Cleaning textReader")
             textReader.reset()
         }
         
@@ -225,10 +236,30 @@ class ReadTextMachine: NSObject {
                 item.removeFromSuperview()
             }
         }
+        
+        if (self.speech.getSpeech().isSpeaking) {
+            self.speech.reset()
+        } else {
+            self.liveView()
+        }
+        print("Cleanup execution request completed.")
     }
     
-    public func restartLoop() {
-        self.cleanup()
-        self.liveView()
+    private func cleanup(callingState: ReadTextState) {
+        switch callingState {
+        case .background:
+            self.currentState = .initial
+            break
+        case .cleanup:
+            self.liveView()
+            break
+        default:
+            print("Nobody is supposed to call me!")
+            break
+        }
+    }
+    
+    @IBAction private func doneCancelingSpeeches(){
+        self.cleanup(callingState: self.currentState)
     }
 }

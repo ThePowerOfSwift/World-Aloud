@@ -24,6 +24,8 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, ViewControl
         operatingMode = ReadTextMachine() // initilize in this mode. Following versions will allow change in op mode thru swipe.
         let mode = operatingMode as! ReadTextMachine
         mode.setViewControllerDelegate(viewController: self)
+        mode.initial()
+        print("ViewController loaded.")
     }
     
     private func configureGestures(){
@@ -43,17 +45,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate, ViewControl
             // Gesture responses to TextReader mode.
             if operatingMode is ReadTextMachine{
                 let operatingMode = operatingMode as! ReadTextMachine
-                let currentState = operatingMode.getCurrentState()
-                switch currentState {
-                case ReadTextState.liveView:
-                    operatingMode.processing()
-                    break
-                case ReadTextState.processing, .reading:
-                    operatingMode.restartLoop()
-                    break
-                default: // nothing to do.
-                    break
-                }
+                operatingMode.handleScreenTap()
             }
         }
     }
