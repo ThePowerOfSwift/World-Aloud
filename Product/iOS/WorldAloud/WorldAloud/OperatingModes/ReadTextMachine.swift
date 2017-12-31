@@ -71,9 +71,7 @@ class ReadTextMachine: NSObject {
         case .liveView:
             self.takePhoto()
             break
-        case .takingPhoto, // states that allow canceling
-             .isolatingText,
-             .imageProcessing,
+        case .isolatingText, // states that allow canceling
              .runningOCR,
              .reading:
             self.cleanup()
@@ -107,10 +105,12 @@ class ReadTextMachine: NSObject {
     }
     
     private func takePhoto() {
-        print("processing state triggered.")
-        self.currentState = .takingPhoto
-        speech.utter("Processing.")
-        self.camera.snapPhoto()
+        if self.currentState == .liveView {
+            print("processing state triggered.")
+            self.currentState = .takingPhoto
+            speech.utter("Processing.")
+            self.camera.snapPhoto()
+        }
     }
     
     // Executes after the observer captures the notification comming from CameraCapture
@@ -138,63 +138,69 @@ class ReadTextMachine: NSObject {
     
     @IBAction private func doneFindingText() {
         print("Notification received. Vision processing complete.")
-        if let textFinder = self.textFinder {
-            let textBoxes = textFinder.getTextBoxes()
-            if textBoxes.count <= 0 {
-                self.cleanup()
-                self.speech.utter("No text found.")
-            }
-            else {
-                self.imageAssembly()
-            }
-        } else { self.cleanup()}
+        if (self.currentState == .isolatingText) {
+            if let textFinder = self.textFinder {
+                let textBoxes = textFinder.getTextBoxes()
+                if textBoxes.count <= 0 {
+                    self.cleanup()
+                    self.speech.utter("No text found.")
+                }
+                else {
+                    self.imageAssembly()
+                }
+            } else { self.cleanup()}
+        }
     }
     
     private func imageAssembly() {
         print("Image assembly triggered.")
-        self.currentState = .imageProcessing
-        if let textFinder = self.textFinder {
-            let image = textFinder.getInputImage()
-            
-            // Fix orientation and origin of the generated image
-            if let imageReoriented = ImageProcessor.fixOrientation(image){
+        if (self.currentState == .isolatingText) {
+            self.currentState = .imageProcessing
+            if let textFinder = self.textFinder {
+                let image = textFinder.getInputImage()
                 
-                // Crop and generate single image
-                //let textBoxes = textFinder.getTextBoxes() // remember these are normalized text boxes
-                UIGraphicsBeginImageContext(imageReoriented.extent.size)
-                UIImage(ciImage: imageReoriented).draw(at: CGPoint(x: 0, y: 0))
-                //        for box in textBoxes {
-                //            let boxAbsolute = ImageProcessor.getAbsoluteRectangleFromNormalized(image: imageFixedTranslation, normalRectangle: box)
-                //            guard let imageStringOfText = ImageProcessor.cropImage(imageFixedTranslation, cropRectangle: boxAbsolute) else {
-                //                print("Error on image crop")
-                //                self.restartLoop()
-                //                return
-                //            }
-                //            UIImage(ciImage: imageStringOfText).draw(at:
-                //                CGPoint(x: boxAbsolute.origin.x,
-                //                        y: imageFixedTranslation.extent.height - boxAbsolute.size.height - boxAbsolute.origin.y))
-                //        }
-                let finalImage = UIGraphicsGetImageFromCurrentImageContext()
-                UIGraphicsEndImageContext()
-                print("About to trigger OCR")
-                viewControllerDelegate?.displayImage(finalImage!, xPosition: 0, yPosition: 20)
-                self.textReader = TextReader()
-                self.currentState = .runningOCR
-                self.textReader?.runOCR(image: finalImage!)
+                // Fix orientation and origin of the generated image
+                if let imageReoriented = ImageProcessor.fixOrientation(image){
+                    
+                    // Crop and generate single image
+                    //let textBoxes = textFinder.getTextBoxes() // remember these are normalized text boxes
+                    UIGraphicsBeginImageContext(imageReoriented.extent.size)
+                    UIImage(ciImage: imageReoriented).draw(at: CGPoint(x: 0, y: 0))
+                    //        for box in textBoxes {
+                    //            let boxAbsolute = ImageProcessor.getAbsoluteRectangleFromNormalized(image: imageFixedTranslation, normalRectangle: box)
+                    //            guard let imageStringOfText = ImageProcessor.cropImage(imageFixedTranslation, cropRectangle: boxAbsolute) else {
+                    //                print("Error on image crop")
+                    //                self.restartLoop()
+                    //                return
+                    //            }
+                    //            UIImage(ciImage: imageStringOfText).draw(at:
+                    //                CGPoint(x: boxAbsolute.origin.x,
+                    //                        y: imageFixedTranslation.extent.height - boxAbsolute.size.height - boxAbsolute.origin.y))
+                    //        }
+                    let finalImage = UIGraphicsGetImageFromCurrentImageContext()
+                    UIGraphicsEndImageContext()
+                    print("About to trigger OCR")
+                    viewControllerDelegate?.displayImage(finalImage!, xPosition: 0, yPosition: 20)
+                    self.textReader = TextReader()
+                    self.currentState = .runningOCR
+                    self.textReader?.runOCR(image: finalImage!)
+                } else {self.cleanup()}
             } else {self.cleanup()}
-        } else {self.cleanup()}
+        }
     }
     
     @IBAction private func ocrComplete() {
         print("Notification received from TextReader. OCR Complete.")
-        if let textReader = self.textReader {
-            if let identifiedText = textReader.getRecognizedText() {
-                if !identifiedText.isEmpty {
-                    print(identifiedText)
-                    self.reading(identifiedText)
+        if self.currentState == .runningOCR {
+            if let textReader = self.textReader {
+                if let identifiedText = textReader.getRecognizedText() {
+                    if !identifiedText.isEmpty {
+                        print(identifiedText)
+                        self.reading(identifiedText)
+                    } else {self.cleanup()}
                 } else {self.cleanup()}
             } else {self.cleanup()}
-        } else {self.cleanup()}
+        }
     }
     
     private func reading(_ text: String) {
@@ -220,13 +226,10 @@ class ReadTextMachine: NSObject {
     private func cleanup() {
         print("Cleanup in progress...")
         self.currentState = .cleanup
-        if let textFinder = self.textFinder {
-            print("Cleaning textFinder")
-            textFinder.reset()
-        }
-        if let textReader = self.textReader {
-            print("Cleaning textReader")
-            textReader.reset()
+
+        self.textFinder = nil
+        if let reader = self.textReader {
+            reader.reset()
         }
         
         // remove all subviews previously added
@@ -260,6 +263,6 @@ class ReadTextMachine: NSObject {
     }
     
     @IBAction private func doneCancelingSpeeches(){
-        self.cleanup(callingState: self.currentState)
+        self.cleanup(callingState: self.currentState) // expecting only the cleanup routine causes a speech cancelation.
     }
 }

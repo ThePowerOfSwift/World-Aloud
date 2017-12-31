@@ -14,12 +14,13 @@ import Vision
 class TextFinder: NSObject{
     // ATTRIBUTES
     private var inputImage: UIImage
-    private var textBoxes = [CGRect]()
+    private var textBoxes: [CGRect]
     public static let NOTIFY_TEXT_DETECTION_COMPLETE = "agu3rra.worldAloud.text.detection.complete"
     
     // INITIALIZER
     init(inputImage: UIImage) {
         self.inputImage = inputImage
+        self.textBoxes = [CGRect]()
         super.init()
     }
     
