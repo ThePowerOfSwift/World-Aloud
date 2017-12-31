@@ -142,8 +142,7 @@ class ReadTextMachine: NSObject {
             if let textFinder = self.textFinder {
                 let textBoxes = textFinder.getTextBoxes()
                 if textBoxes.count <= 0 {
-                    self.cleanup()
-                    self.speech.utter("No text found.")
+                    self.cleanup(callingState: self.currentState)
                 }
                 else {
                     self.imageAssembly()
@@ -214,6 +213,9 @@ class ReadTextMachine: NSObject {
         if self.currentState == .reading { // remember the Synthesizer broadcasts its message even when it's done speaking a program status
             self.cleanup()
         }
+        if self.currentState == .cleanup { // No text found. Go back to liveView
+            self.liveView()
+        }
     }
     
     /// Stops all processing or reading activity
@@ -256,6 +258,11 @@ class ReadTextMachine: NSObject {
         case .cleanup:
             self.liveView()
             break
+        case .isolatingText:
+            // the Vision Framework couldn't find any text.
+            print("No text found.")
+            self.cleanup()
+            self.speech.utter("No text found.")
         default:
             print("Nobody is supposed to call me!")
             break
