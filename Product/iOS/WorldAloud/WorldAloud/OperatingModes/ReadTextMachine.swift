@@ -264,7 +264,8 @@ class ReadTextMachine: NSObject {
             self.cleanup()
             self.speech.utter("No text found.")
         default:
-            print("Nobody is supposed to call me!")
+            print("Unexpected call. Redirecting to parameterless cleanup().")
+            self.cleanup()
             break
         }
     }
